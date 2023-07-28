@@ -60,7 +60,7 @@ Create Table VENTA(
 	TotalProducto int,
 	MontoTotal decimal(10,2),
 	Contacto varchar(50),
-	IdDistrito varchar(10),
+	IdLocalidad varchar(10),
 	Telefono varchar(50),
 	Direccion varchar(500),
 	IdTransaccion varchar(50),
