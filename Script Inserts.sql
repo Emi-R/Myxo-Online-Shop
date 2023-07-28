@@ -2,7 +2,8 @@ Use DBCARRITO
 Go
 
 Insert into USUARIO (Nombres, Apellidos, Correo, Clave) Values 
-	('TestNombre', 'TestApellido', 'test@example', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae')
+	('TestNombre', 'TestApellido', 'test@example', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae'),
+	('Test 02', 'User 02', 'user02@example', 'e1c10806027637577653a25120e4a8437be5207c2e250181823a4fc323eaee39')
 Go
 
 Insert into CATEGORIA(Descripcion) Values 
