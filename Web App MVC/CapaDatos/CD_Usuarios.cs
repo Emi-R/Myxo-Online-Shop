@@ -55,5 +55,115 @@ namespace CapaDatos
 
             return lista;
         }
+
+        // Registers new user with Stored Procedure in the database
+        public int RegistrarUsuario(Usuario user, out string Mensaje)
+        {
+            int idGenerado = 0;
+            Mensaje = string.Empty;
+
+            try
+            {
+
+                using (SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                {
+                    SqlCommand cmd = new SqlCommand("sp_RegistrarUsuario", oconexion);
+                    cmd.Parameters.AddWithValue("Nombres", user.Nombres);
+                    cmd.Parameters.AddWithValue("Apellidos", user.Apellidos);
+                    cmd.Parameters.AddWithValue("Correo", user.Correo);
+                    cmd.Parameters.AddWithValue("Clave", user.Clave);
+                    cmd.Parameters.AddWithValue("Activo", user.Activo);
+                    cmd.Parameters.Add("Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    oconexion.Open();
+
+                    cmd.ExecuteNonQuery();
+
+                    idGenerado = Convert.ToInt32(cmd.Parameters["Resultado"].Value);
+                    Mensaje = cmd.Parameters["Mensaje"].Value.ToString();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                idGenerado = 0;
+                Mensaje = ex.Message;
+
+            }
+
+            return idGenerado;
+
+        }
+
+        // Modifies user with Stored Procedure in the database
+        public bool EditarUsuario(Usuario user, out string Mensaje)
+        {
+            bool resultado = false;
+            Mensaje = string.Empty;
+
+            try
+            {
+
+                using (SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                {
+                    SqlCommand cmd = new SqlCommand("sp_EditarUsuario", oconexion);
+                    cmd.Parameters.AddWithValue("IdUsuario", user.IdUsuario);
+                    cmd.Parameters.AddWithValue("Nombres", user.Nombres);
+                    cmd.Parameters.AddWithValue("Apellidos", user.Apellidos);
+                    cmd.Parameters.AddWithValue("Correo", user.Correo);
+                    cmd.Parameters.AddWithValue("Activo", user.Activo);
+                    cmd.Parameters.Add("Resultado", SqlDbType.Bit).Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    oconexion.Open();
+
+                    cmd.ExecuteNonQuery();
+
+                    resultado = Convert.ToBoolean(cmd.Parameters["Resultado"].Value);
+                    Mensaje = cmd.Parameters["Mensaje"].Value.ToString();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado = false;
+                Mensaje = ex.Message;
+  
+            }
+
+            return resultado;
+
+        }
+
+        // Deletes a user from the database
+        public bool EliminarUsuario(int id, out string Mensaje)
+        {
+            bool resultado = false;
+            Mensaje = string.Empty;
+
+            try
+            {
+                using (SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                {
+                    SqlCommand cmd = new SqlCommand("Delete Top (1) From USUARIO Where IdUsuario = @id", oconexion);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.CommandType = CommandType.Text;
+
+                    oconexion.Open();
+
+                    resultado = cmd.ExecuteNonQuery() > 0 ? true : false;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado = false;
+                Mensaje = ex.Message;                
+            }
+            return resultado;
+        }
+
     }
 }

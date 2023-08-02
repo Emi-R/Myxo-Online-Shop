@@ -17,7 +17,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12">
-                <button type="button" class="btn btn-success" onclick="abrirModal()">Crear nuevo</button>
+                <button type="button" class="btn btn-success" onclick="abrirModal(null)">Crear nuevo</button>
             </div>
         </div>
 
@@ -47,7 +47,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-success bg-gradient text-white">
@@ -55,8 +55,10 @@
                 <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
 
+                <input id="txtId" type="hidden" value="0" />
+
+                <div class="row">
                     <div class="col-sm-6">
                         <label for="lblNombres" class="form-label">Nombres</label>
                         <input type="text" class="form-control" id="txtNombres">
@@ -77,13 +79,21 @@
                         </select>
                     </div>
 
-                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div id="mensajeError" class="alert alert-danger" role="alert">
+
+                            </div>
+                        </div>
+                    </div>
+
+
 
 
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-success">Crear</button>
+                <button type="button" class="btn btn-outline-success" onclick="Guardar()">Guardar</button>
                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
@@ -96,6 +106,7 @@
     <script>
 
         var tabledata;
+        var filaSeleccionada;
 
         tabledata = $("#tabla").DataTable({
             responsive: true,
@@ -131,21 +142,92 @@
             }
         });
 
+        //Function that opens modal whenever we make a click on "Crear nuevo"(create) or "Editar"(Modify)
+        function abrirModal(json) {
 
-        //Function that opens modal whenever we make a click on "Crear nuevo"
-        function abrirModal() {
+            //Cleans input textboxes
+            $("#txtId").val(0);
+            $("#txtNombres").val("");
+            $("#txtApellidos").val("");
+            $("#txtCorreo").val("");
+            $("#cboActivo").val(1);
+
+            $("#mensajeError").hide();
+
+            if (json != null) {
+
+                // Fills the form with the selected user
+                $("#txtId").val(json.IdUsuario);
+                $("#txtNombres").val(json.Nombres);
+                $("#txtApellidos").val(json.Apellidos);
+                $("#txtCorreo").val(json.Correo);
+                $("#cboActivo").val(json.Activo == true ? 1 : 0);
+            }
 
             $("#FormModal").modal("show");
         }
 
         $("#tabla tbody").on("click", '.btn-editar', function () {
 
-            var filaSeleccionada = $(this).closest("tr");
+            filaSeleccionada = $(this).closest("tr");
 
             var data = tabledata.row(filaSeleccionada).data();
 
+            abrirModal(data);
+
         })
 
+        function Guardar() {
+
+            var Usuario = {
+                IdUsuario: $("#txtId").val(),
+                Apellidos: $("#txtApellidos").val(),
+                Nombres: $("#txtNombres").val(),
+                Correo: $("#txtCorreo").val(),
+                Activo: $("#cboActivo").val() == 1 ? true : false,
+            }
+
+            jQuery.ajax({
+                url: '@Url.Action("GuardarUsuario","Home")',
+                type: "POST",
+                data: JSON.stringify({ user: Usuario }),
+                dataType: "json",
+                contentType: "application/json; charset=utf 8",
+                success: function (data) {
+
+                    debugger;
+
+                    // New user
+                    if (Usuario.IdUsuario == 0)
+                    {
+                        if (data.resultado != 0) {
+                            Usuario.IdUsuario = data.resultado
+                            tabledata.row.add(Usuario).draw(false);
+                            $("#FormModal").modal("hide");
+                        }
+                        else
+                        {
+                            $("#mensajeError").text(data.mensaje);
+                            $("#mensajeError").show();
+                            
+                        }
+                    }
+                    else
+                    {
+                        if (data.resultado) {
+                            tabledata.row(filaSeleccionada).data(Usuario).draw(false);
+                            filaSeleccionada = null;
+                            $("#FormModal").modal("hide");
+                        }
+                        else
+                        {
+                            $("#mensajeError").text(data.mensaje);
+                            $("#mensajeError").show();
+                        }
+                    }
+                }
+            })
+        }
 
     </script>
 }
