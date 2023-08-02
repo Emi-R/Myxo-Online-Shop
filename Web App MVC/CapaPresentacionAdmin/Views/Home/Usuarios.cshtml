@@ -73,7 +73,7 @@
                     </div>
                     <div class="col-sm-6">
                         <label for="lblActivo" class="form-label">Activo</label>
-                        <select id="cboactivo" class="form-select">
+                        <select id="cboActivo" class="form-select">
                             <option selected value="1">Si</option>
                             <option value="0">No</option>
                         </select>
@@ -86,9 +86,6 @@
                             </div>
                         </div>
                     </div>
-
-
-
 
                 </div>
             </div>
@@ -193,9 +190,9 @@
                 data: JSON.stringify({ user: Usuario }),
                 dataType: "json",
                 contentType: "application/json; charset=utf 8",
-                success: function (data) {
-
-                    debugger;
+                success: function (data)
+                {
+                    $(".modal-body").LoadingOverlay("hide");
 
                     // New user
                     if (Usuario.IdUsuario == 0)
@@ -209,11 +206,11 @@
                         {
                             $("#mensajeError").text(data.mensaje);
                             $("#mensajeError").show();
-                            
+
                         }
                     }
                     else
-                    {
+                    {   // Modified existing user
                         if (data.resultado) {
                             tabledata.row(filaSeleccionada).data(Usuario).draw(false);
                             filaSeleccionada = null;
@@ -225,6 +222,22 @@
                             $("#mensajeError").show();
                         }
                     }
+                },
+                error: function (error) {
+
+                    $(".modal-body").LoadingOverlay("hide");
+                    $("#mensajeError").text("Error Ajax");
+                    $("#mensajeError").show();
+                },
+                beforeSend: function ()
+                {
+                    // Loading Overlay jQuery implementation
+                    $(".modal-body").LoadingOverlay("show",
+                        {
+                        imageResizeFactor: 2,
+                        text: "Procesando...",
+                        size: 14
+                        })
                 }
             })
         }
