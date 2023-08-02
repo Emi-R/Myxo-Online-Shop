@@ -54,7 +54,7 @@ namespace CapaNegocio
                 mail.IsBodyHtml = true;
 
                 // Configres the Gmail SMTP server
-                var smtp = new SmtpClient()
+                var smtp = new SmtpClient() 
                 {
                     Credentials = new NetworkCredential("myxoonlineshop@gmail.com", "vocuiooyltmghqtl"),
                     Host = "smtp.gmail.com",

@@ -37,11 +37,34 @@ namespace CapaNegocio
 
             if (string.IsNullOrEmpty(Mensaje))
             {
-                // Using Helper to encrypt the password
-                string clave = "test123";
+                // Using Helper to generate the random password and encrypt it
+                string clave = CN_Helper.GenerarClave();
                 user.Clave = CN_Helper.ConvertirSHA256(clave);
 
-                return objCapaDato.RegistrarUsuario(user, out Mensaje);
+                int resultado = objCapaDato.RegistrarUsuario(user, out Mensaje);
+
+                if (resultado != 0)
+                {
+                    string asunto = "Nueva cuenta en Myxo Online Shop";
+                    string mensajeCorreo = "<h3>Su cuenta ha sido creada correctamente</h3> </br> <p>Su contraseña para acceder es: !clave!</p>";
+                    mensajeCorreo = mensajeCorreo.Replace("!clave!", clave);
+
+                    bool respuesta = CN_Helper.EnviarCorreo(user.Correo, asunto, mensajeCorreo);
+
+                    if (respuesta)
+                    {
+                        return resultado;
+                    }
+                    else
+                    {
+                        Mensaje = "No se pudo enviar el correo";
+                        return 0;
+                    }
+                }
+                else
+                {
+                    return resultado;
+                }
             }
             else
             {

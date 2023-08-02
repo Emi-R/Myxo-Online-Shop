@@ -11,6 +11,7 @@ namespace CapaDatos
 {
     public class CD_Usuarios
     {
+        private SqlConnection oconexion = new SqlConnection(Conexion.cn);
 
         // Returns a list of all users from the database
         public List<Usuario> Listar()
@@ -19,8 +20,7 @@ namespace CapaDatos
 
             try
             {
-
-                using (SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                using (oconexion)
                 {
                     string query = "select IdUsuario, Nombres, Apellidos, Correo, Clave, Reestablecer, Activo from USUARIO";
 
@@ -52,20 +52,23 @@ namespace CapaDatos
                 lista = new List<Usuario>();
                 throw;
             }
+            finally
+            {
+                oconexion.Close();
+            }
 
             return lista;
         }
 
         // Registers new user with Stored Procedure in the database
         public int RegistrarUsuario(Usuario user, out string Mensaje)
-        {
+        { 
             int idGenerado = 0;
             Mensaje = string.Empty;
 
             try
             {
-
-                using (SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                using (oconexion)
                 {
                     SqlCommand cmd = new SqlCommand("sp_RegistrarUsuario", oconexion);
                     cmd.Parameters.AddWithValue("Nombres", user.Nombres);
@@ -92,6 +95,10 @@ namespace CapaDatos
                 Mensaje = ex.Message;
 
             }
+            finally
+            {
+                oconexion.Close();
+            }
 
             return idGenerado;
 
@@ -105,8 +112,7 @@ namespace CapaDatos
 
             try
             {
-
-                using (SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                using (oconexion)
                 {
                     SqlCommand cmd = new SqlCommand("sp_EditarUsuario", oconexion);
                     cmd.Parameters.AddWithValue("IdUsuario", user.IdUsuario);
@@ -133,6 +139,10 @@ namespace CapaDatos
                 Mensaje = ex.Message;
   
             }
+            finally
+            {
+                oconexion.Close();
+            }
 
             return resultado;
 
@@ -146,7 +156,7 @@ namespace CapaDatos
 
             try
             {
-                using (SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                using (oconexion)
                 {
                     SqlCommand cmd = new SqlCommand("Delete Top (1) From USUARIO Where IdUsuario = @id", oconexion);
                     cmd.Parameters.AddWithValue("@id", id);
@@ -162,6 +172,11 @@ namespace CapaDatos
                 resultado = false;
                 Mensaje = ex.Message;                
             }
+            finally
+            {
+                oconexion.Close();
+            }
+
             return resultado;
         }
 
