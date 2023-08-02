@@ -128,7 +128,7 @@
                 },
                 {
                     "defaultContent": '<button type="button" class="btn btn-warning btn-editar btn-sm"><i class="fas fa-pen me-1"></i></button>' +
-                        '<button type="button" class="btn btn-danger btn-sm ms-4"><i class="fas fa-trash me-1"></i></button>',
+                        '<button type="button" class="btn btn-danger btn-sm ms-4 btn-eliminar"><i class="fas fa-trash me-1"></i></button>',
                     "orderable": false,
                     "searchable": false,
                     "width": "85px"
@@ -164,6 +164,7 @@
             $("#FormModal").modal("show");
         }
 
+        // Click function on "Modificar" (modify)
         $("#tabla tbody").on("click", '.btn-editar', function () {
 
             filaSeleccionada = $(this).closest("tr");
@@ -171,6 +172,52 @@
             var data = tabledata.row(filaSeleccionada).data();
 
             abrirModal(data);
+
+        })
+
+        // Click function on "Eliminar" (delete)
+        $("#tabla tbody").on("click", '.btn-eliminar', function () {
+
+            usuarioSeleccionado = $(this).closest("tr");
+
+            var data = tabledata.row(usuarioSeleccionado).data();
+
+            swal({
+                title: "Atencion!",
+                text: "Desea eliminar al usuario " + data.Nombres + " " + data.Apellidos + "?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-primary",
+                confirmButtonText: "Si",
+                cancelButtonText: "No",
+                closeOnConfirm: true
+
+            },
+            function () {
+
+                jQuery.ajax({
+                    url: '@Url.Action("EliminarUsuario","Home")',
+                    type: "POST",
+                    data: JSON.stringify({ id: data.IdUsuario }),
+                    dataType: "json",
+                    contentType: "application/json, charset: utf 8",
+                    success: function (data) {
+
+                        if (data.resultado) {
+
+                            tabledata.row(usuarioSeleccionado).remove().draw();
+
+                        } else {
+                            swal("No se pudo eliminar", data.mensaje, "error")
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                });
+
+                }
+            )
 
         })
 
