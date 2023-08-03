@@ -91,19 +91,14 @@ namespace CapaNegocio
             }
 
             if (string.IsNullOrEmpty(Mensaje))
-            {
                 return objCapaDato.EditarUsuario(user, out Mensaje);
-            }
             else
-            {
                 return false;
-            }
         }
 
         public bool EliminarUsuario(int id, out string Mensaje)
         {
             return objCapaDato.EliminarUsuario(id, out Mensaje);
         }
-
     }
 }

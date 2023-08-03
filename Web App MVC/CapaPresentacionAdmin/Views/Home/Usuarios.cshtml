@@ -46,7 +46,7 @@
 
 
 
-<!-- Modal -->
+<!-- Modal for new user and modify user -->
 <div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -139,10 +139,10 @@
             }
         });
 
-        //Function that opens modal whenever we make a click on "Crear nuevo"(create) or "Editar"(Modify)
+        // Function that opens modal whenever we make a click on "Crear nuevo"(create) or "Editar"(Modify)
         function abrirModal(json) {
 
-            //Cleans input textboxes
+            // Cleans input textboxes
             $("#txtId").val(0);
             $("#txtNombres").val("");
             $("#txtApellidos").val("");
@@ -204,7 +204,7 @@
                     success: function (data) {
 
                         if (data.resultado) {
-
+                            swal("Deleted!", "Your imaginary file has been deleted", "success");
                             tabledata.row(usuarioSeleccionado).remove().draw();
 
                         } else {
@@ -215,10 +215,8 @@
                         console.log(error)
                     }
                 });
-
                 }
             )
-
         })
 
         function Guardar() {
@@ -248,12 +246,12 @@
                             Usuario.IdUsuario = data.resultado
                             tabledata.row.add(Usuario).draw(false);
                             $("#FormModal").modal("hide");
+                            swal("Usuario creado!", "El usuario " + Usuario.Nombres + " " + Usuario.Apellidos + " ha sido creado correctamente", "success");
                         }
                         else
                         {
                             $("#mensajeError").text(data.mensaje);
                             $("#mensajeError").show();
-
                         }
                     }
                     else
@@ -262,6 +260,7 @@
                             tabledata.row(filaSeleccionada).data(Usuario).draw(false);
                             filaSeleccionada = null;
                             $("#FormModal").modal("hide");
+                            swal("Usuario modificado!", "El usuario " + Usuario.Nombres + " " + Usuario.Apellidos + " ha sido modificado correctamente", "success");
                         }
                         else
                         {
@@ -284,7 +283,8 @@
                         imageResizeFactor: 2,
                         text: "Procesando...",
                         size: 14
-                        })
+                        }
+                    )
                 }
             })
         }

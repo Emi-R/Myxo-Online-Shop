@@ -8,8 +8,6 @@ using System.Net.Mail;
 using System.Net;
 using System.IO;
 
-
-
 namespace CapaNegocio
 {
     public class CN_Helper
@@ -74,6 +72,5 @@ namespace CapaNegocio
 
             return resultado;
         }
-
     }
 }
