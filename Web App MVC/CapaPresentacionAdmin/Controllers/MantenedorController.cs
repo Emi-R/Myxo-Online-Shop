@@ -10,7 +10,6 @@ namespace CapaPresentacionAdmin.Controllers
 {
     public class MantenedorController : Controller
     {
-
         public ActionResult Categoria()
         {
             return View();
