@@ -205,7 +205,7 @@ Begin
 					Inner Join MARCA m on m.IdMarca = p.IdMarca
 					Where p.IdMarca = @IdMarca)
 	Begin
-		Delete top(1) From MARCA Where @IdMarca = @IdMarca
+		Delete top(1) From MARCA Where IdMarca = @IdMarca
 		Set @Resultado = 1
 	End
 	Else
