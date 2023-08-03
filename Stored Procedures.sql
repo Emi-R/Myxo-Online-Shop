@@ -1,5 +1,5 @@
 --------------------------------------------
----------------- USERS ---------------------
+------------------- USERS ------------------
 --------------------------------------------
 
 -- Creates user
@@ -138,7 +138,7 @@ Go
 
 
 --------------------------------------------
----------------- BRANDS ----------------
+------------------- BRANDS -----------------
 --------------------------------------------
 
 -- Creates brand
@@ -211,5 +211,98 @@ Begin
 	Else
 		Set @Mensaje = 'La marca se encuentra relacionada a un producto'
 
+End
+Go
+
+--------------------------------------------
+------------------ PRODUCTS ----------------
+--------------------------------------------
+
+-- Creates new product
+
+Create Proc sp_RegistrarProducto(
+	@Nombre varchar(100),
+	@Descripcion varchar(100),
+	@IdMarca varchar(100),
+	@IdCategoria varchar(100),
+	@Precio decimal(10,2),
+	@Stock int,
+	@Activo bit,
+	@Mensaje varchar(500) output,
+	@Resultado int output
+)
+As
+Begin
+	Set @Resultado = 0
+
+	If Not Exists (Select * From PRODUCTO Where Nombre = @Nombre)
+	Begin
+		Insert Into PRODUCTO(Nombre, Descripcion, IdMarca, IdCategoria, Precio, Stock, Activo) Values
+		(@Nombre, @Descripcion, @IdMarca, @IdCategoria, @Precio, @Stock, @Activo)
+
+		Set @Resultado = SCOPE_IDENTITY()
+	end
+	else
+		Set @Mensaje = 'El producto ya existe'
+End
+Go
+
+-- Modifies product
+
+Create Proc sp_ModificarProducto(
+	@IdProducto int,
+	@Nombre varchar(100),
+	@Descripcion varchar(100),
+	@IdMarca varchar(100),
+	@IdCategoria varchar(100),
+	@Precio decimal(10,2),
+	@Stock int,
+	@Activo bit,
+	@Mensaje varchar(500) output,
+	@Resultado bit output
+)
+As
+Begin
+	Set @Resultado = 0
+
+	If Not Exists (Select * From PRODUCTO Where Nombre = @Nombre and IdProducto != @IdProducto)
+	Begin
+		Update PRODUCTO set
+		Nombre = @Nombre,
+		Descripcion = @Descripcion,
+		IdMarca = @IdMarca,
+		IdCategoria = @IdCategoria,
+		Precio = @Precio,
+		Stock = @Stock,
+		Activo = @Activo
+		Where IdProducto = @IdProducto
+
+		Set @Resultado = 1
+	End
+	Else
+		Set @Mensaje = 'El producto ya existe'
+End
+Go
+
+-- Deletes product
+
+Create Proc sp_EliminarProducto(
+	@IdProducto int,
+	@Mensaje varchar(500) output,
+	@Resultado bit output
+)
+As
+Begin
+	Set @Resultado = 0
+
+	If Not Exists (Select * From DETALLE_VENTA dv
+					Inner Join PRODUCTO p on p.IdProducto = dv.IdProducto
+					Where p.IdProducto = @IdProducto)
+	Begin
+		Delete Top(1) from PRODUCTO where IdProducto = @IdProducto
+		Set @Resultado = 1
+	End
+	Else
+		Set @Mensaje = 'El producto se encuenta relacionado a una venta'
 End
 Go

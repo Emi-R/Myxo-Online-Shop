@@ -19,7 +19,8 @@ Insert into MARCA(Descripcion) Values
 	('LG'),
 	('Hyundai'),
 	('Canon'),
-	('Roberta Allente')
+	('Phillips'),
+	('Panasonic')
 Go
 
 Insert into PROVINCIA(IdProvincia, Descripcion) values 
