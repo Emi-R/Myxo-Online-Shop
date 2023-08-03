@@ -135,3 +135,81 @@ Begin
 
 End
 Go
+
+
+--------------------------------------------
+---------------- BRANDS ----------------
+--------------------------------------------
+
+-- Creates brand
+Create Proc sp_RegistrarMarca(
+	@Descripcion varchar(100),
+	@Activo bit,
+	@Mensaje varchar(500) output,
+	@Resultado int output
+)
+As
+Begin
+	Set @Resultado = 0
+
+	If Not Exists (Select * From MARCA Where Descripcion = @Descripcion)
+	Begin
+		Insert Into MARCA (Descripcion, Activo)
+		Values (@Descripcion, @Activo)
+
+		Set @Resultado = SCOPE_IDENTITY()
+	End
+	Else
+		Set @Mensaje = 'La marca ya existe'
+
+End
+Go
+
+-- Modifies category
+Create Proc sp_EditarMarca(
+	@IdMarca int,
+	@Descripcion varchar(100),
+	@Activo bit,
+	@Mensaje varchar(500) output,
+	@Resultado bit output
+)
+As
+Begin
+	Set @Resultado = 0
+
+	If Not Exists (Select * From MARCA Where Descripcion = @Descripcion And IdMarca != @IdMarca)
+	Begin
+		Update top(1) MARCA Set Descripcion = @Descripcion,
+		Activo = @Activo
+		Where IdMarca = @IdMarca
+
+		Set @Resultado = 1
+	End
+	Else
+		Set @Mensaje = 'La marca ya existe'
+
+End
+Go
+
+-- Deletes category
+Create Proc sp_EliminarMarca(
+	@IdMarca int,
+	@Mensaje varchar(500) output,
+	@Resultado bit output
+)
+As
+Begin
+	Set @Resultado = 0
+
+	If Not Exists (Select * From PRODUCTO p 
+					Inner Join MARCA m on m.IdMarca = p.IdMarca
+					Where p.IdMarca = @IdMarca)
+	Begin
+		Delete top(1) From MARCA Where @IdMarca = @IdMarca
+		Set @Resultado = 1
+	End
+	Else
+		Set @Mensaje = 'La marca se encuentra relacionada a un producto'
+
+End
+Go

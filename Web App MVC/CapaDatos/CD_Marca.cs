@@ -9,20 +9,20 @@ using CapaEntidad;
 
 namespace CapaDatos
 {
-    public class CD_Categoria
+    public class CD_Marca
     {
         private SqlConnection oconexion = new SqlConnection(Conexion.cn);
 
-        // Returns a list of all categories from the database
-        public List<Categoria> Listar()
+        // Returns a list of all brands from the database
+        public List<Marca> Listar()
         {
-            List<Categoria> lista = new List<Categoria>();
+            List<Marca> lista = new List<Marca>();
 
             try
             {
                 using (oconexion)
                 {
-                    string query = "Select IdCategoria, Descripcion, Activo From CATEGORIA";
+                    string query = "Select IdMarca, Descripcion, Activo From MARCA";
 
                     SqlCommand cmd = new SqlCommand(query, oconexion);
                     cmd.CommandType = CommandType.Text;
@@ -34,9 +34,9 @@ namespace CapaDatos
                         while (dr.Read())
                         {
                             lista.Add(
-                                new Categoria()
+                                new Marca()
                                 {
-                                    IdCategoria = Convert.ToInt32(dr["IdCategoria"]),
+                                    IdMarca = Convert.ToInt32(dr["IdMarca"]),
                                     Descripcion = dr["Descripcion"].ToString(),
                                     Activo = Convert.ToBoolean(dr["Activo"])
                                 });
@@ -46,7 +46,7 @@ namespace CapaDatos
             }
             catch (Exception)
             {
-                lista = new List<Categoria>();
+                lista = new List<Marca>();
             }
             finally
             {
@@ -57,8 +57,8 @@ namespace CapaDatos
         }
 
 
-        // Registers new category with Stored Procedure in the database
-        public int RegistrarCategoria(Categoria cat, out string Mensaje)
+        // Registers new brand with Stored Procedure in the database
+        public int RegistrarMarca(Marca mar, out string Mensaje)
         {
             int idGenerado = 0;
             Mensaje = string.Empty;
@@ -67,10 +67,10 @@ namespace CapaDatos
             {
                 using (oconexion)
                 {
-                    SqlCommand cmd = new SqlCommand("sp_RegistrarCategoria", oconexion);
-                
-                    cmd.Parameters.AddWithValue("Descripcion", cat.Descripcion);
-                    cmd.Parameters.AddWithValue("Activo", cat.Activo);
+                    SqlCommand cmd = new SqlCommand("sp_RegistrarMarca", oconexion);
+
+                    cmd.Parameters.AddWithValue("Descripcion", mar.Descripcion);
+                    cmd.Parameters.AddWithValue("Activo", mar.Activo);
                     cmd.Parameters.Add("Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
                     cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -98,8 +98,8 @@ namespace CapaDatos
 
         }
 
-        // Modifies category with Stored Procedure in the database
-        public bool EditarCategoria(Categoria cat, out string Mensaje)
+        // Modifies brand with Stored Procedure in the database
+        public bool EditarMarca(Marca mar, out string Mensaje)
         {
             bool resultado = false;
             Mensaje = string.Empty;
@@ -108,11 +108,11 @@ namespace CapaDatos
             {
                 using (oconexion)
                 {
-                    SqlCommand cmd = new SqlCommand("sp_EditarCategoria", oconexion);
+                    SqlCommand cmd = new SqlCommand("sp_EditarMarca", oconexion);
 
-                    cmd.Parameters.AddWithValue("IdCategoria", cat.IdCategoria);
-                    cmd.Parameters.AddWithValue("Descripcion", cat.Descripcion);
-                    cmd.Parameters.AddWithValue("Activo", cat.Activo);
+                    cmd.Parameters.AddWithValue("IdMarca", mar.IdMarca);
+                    cmd.Parameters.AddWithValue("Descripcion", mar.Descripcion);
+                    cmd.Parameters.AddWithValue("Activo", mar.Activo);
                     cmd.Parameters.Add("Resultado", SqlDbType.Bit).Direction = ParameterDirection.Output;
                     cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -141,8 +141,8 @@ namespace CapaDatos
 
         }
 
-        // Deletes category with Stored Procedure in the database
-        public bool EliminarCategoria(int id, out string Mensaje)
+        // Delete brand with Stored Procedure in the database
+        public bool EliminarMarca(int id, out string Mensaje)
         {
             bool resultado = false;
             Mensaje = string.Empty;
@@ -151,9 +151,9 @@ namespace CapaDatos
             {
                 using (oconexion)
                 {
-                    SqlCommand cmd = new SqlCommand("sp_EliminarCategoria", oconexion);
+                    SqlCommand cmd = new SqlCommand("sp_EliminarMarca", oconexion);
 
-                    cmd.Parameters.AddWithValue("IdCategoria", id);
+                    cmd.Parameters.AddWithValue("IdMarca", id);
                     cmd.Parameters.Add("Resultado", SqlDbType.Bit).Direction = ParameterDirection.Output;
                     cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -181,6 +181,5 @@ namespace CapaDatos
             return resultado;
 
         }
-
     }
 }
