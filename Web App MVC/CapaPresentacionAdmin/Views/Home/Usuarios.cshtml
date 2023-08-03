@@ -51,7 +51,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-success bg-gradient text-white">
-                <h5 class="modal-title" id="exampleModalLabel">Nuevo Usuario</h5>
+                <h5 class="modal-title" id="tituloModal">Nuevo Usuario</h5>
                 <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -152,8 +152,8 @@
             $("#mensajeError").hide();
 
             if (json != null) {
-
                 // Fills the form with the selected user
+                $("#tituloModal").text("Modificar Usuario");
                 $("#txtId").val(json.IdUsuario);
                 $("#txtNombres").val(json.Nombres);
                 $("#txtApellidos").val(json.Apellidos);
@@ -187,7 +187,7 @@
                 text: "Desea eliminar al usuario " + data.Nombres + " " + data.Apellidos + "?",
                 type: "warning",
                 showCancelButton: true,
-                confirmButtonClass: "btn-primary",
+                confirmButtonClass: "btn-danger",
                 confirmButtonText: "Si",
                 cancelButtonText: "No",
                 closeOnConfirm: true

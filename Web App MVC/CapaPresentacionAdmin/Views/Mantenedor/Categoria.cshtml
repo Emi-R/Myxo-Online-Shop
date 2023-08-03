@@ -101,13 +101,11 @@
             ordering: false,
 
             "ajax": {
-                url: '@Url.Action("ListarUsuarios","Home")',
+                url: '@Url.Action("ListarCategorias","Mantenedor")',
                 type: "GET",
                 dataType: "json" },
             "columns": [
-                { "data": "Nombres" },
-                { "data": "Apellidos" },
-                { "data": "Correo" },
+                { "data": "Descripcion" },
                 { "data": "Activo", "render": function (valor) {
 
                         if (valor) {
@@ -135,20 +133,16 @@
 
             // Cleans input textboxes
             $("#txtId").val(0);
-            $("#txtNombres").val("");
-            $("#txtApellidos").val("");
-            $("#txtCorreo").val("");
+            $("#txtDescripcion").val("");
             $("#cboActivo").val(1);
 
             $("#mensajeError").hide();
 
             if (json != null) {
 
-                // Fills the form with the selected user
-                $("#txtId").val(json.IdUsuario);
-                $("#txtNombres").val(json.Nombres);
-                $("#txtApellidos").val(json.Apellidos);
-                $("#txtCorreo").val(json.Correo);
+                // Fills the form with the selected Category
+                $("#txtId").val(json.IdCategoria);
+                $("#txtDescripcion").val(json.Descripcion);
                 $("#cboActivo").val(json.Activo == true ? 1 : 0);
             }
 
@@ -169,13 +163,13 @@
         // Click function on "Eliminar" (delete)
         $("#tabla tbody").on("click", '.btn-eliminar', function () {
 
-            usuarioSeleccionado = $(this).closest("tr");
+            categoriaSeleccionada = $(this).closest("tr");
 
-            var data = tabledata.row(usuarioSeleccionado).data();
+            var data = tabledata.row(categoriaSeleccionada).data();
 
             swal({
                 title: "Atencion!",
-                text: "Desea eliminar al usuario " + data.Nombres + " " + data.Apellidos + "?",
+                text: "Desea eliminar la categoria " + data.Descripcion + "?",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonClass: "btn-primary",
@@ -187,16 +181,16 @@
             function () {
 
                 jQuery.ajax({
-                    url: '@Url.Action("EliminarUsuario","Home")',
+                    url: '@Url.Action("EliminarCategoria","Mantenedor")',
                     type: "POST",
-                    data: JSON.stringify({ id: data.IdUsuario }),
+                    data: JSON.stringify({ id: data.IdCategoria }),
                     dataType: "json",
                     contentType: "application/json, charset: utf 8",
                     success: function (data) {
 
                         if (data.resultado) {
-                            swal("Deleted!", "Your imaginary file has been deleted", "success");
-                            tabledata.row(usuarioSeleccionado).remove().draw();
+                            swal("Eliminada!", "La categoria ha sido eliminada", "success");
+                            tabledata.row(categoriaSeleccionada).remove().draw();
 
                         } else {
                             swal("No se pudo eliminar", data.mensaje, "error")
@@ -212,32 +206,30 @@
 
         function Guardar() {
 
-            var Usuario = {
-                IdUsuario: $("#txtId").val(),
-                Apellidos: $("#txtApellidos").val(),
-                Nombres: $("#txtNombres").val(),
-                Correo: $("#txtCorreo").val(),
+            var Categoria = {
+                IdCategoria: $("#txtId").val(),
+                Descripcion: $("#txtDescripcion").val(),
                 Activo: $("#cboActivo").val() == 1 ? true : false,
             }
 
             jQuery.ajax({
-                url: '@Url.Action("GuardarUsuario","Home")',
+                url: '@Url.Action("GuardarCategoria","Mantenedor")',
                 type: "POST",
-                data: JSON.stringify({ user: Usuario }),
+                data: JSON.stringify({ cat: Categoria }),
                 dataType: "json",
                 contentType: "application/json; charset=utf 8",
                 success: function (data)
                 {
                     $(".modal-body").LoadingOverlay("hide");
 
-                    // New user
-                    if (Usuario.IdUsuario == 0)
+                    // New Category
+                    if (Categoria.IdCategoria == 0)
                     {
                         if (data.resultado != 0) {
-                            Usuario.IdUsuario = data.resultado
-                            tabledata.row.add(Usuario).draw(false);
+                            Categoria.IdCategoria = data.resultado
+                            tabledata.row.add(Categoria).draw(false);
                             $("#FormModal").modal("hide");
-                            swal("Usuario creado!", "El usuario " + Usuario.Nombres + " " + Usuario.Apellidos + " ha sido creado correctamente", "success");
+                            swal("Categoria creada!", "La categoria " + Categoria.Descripcion + " ha sido creada correctamente", "success");
                         }
                         else
                         {
@@ -246,12 +238,12 @@
                         }
                     }
                     else
-                    {   // Modified existing user
+                    {   // Modified existing Category
                         if (data.resultado) {
-                            tabledata.row(filaSeleccionada).data(Usuario).draw(false);
+                            tabledata.row(filaSeleccionada).data(Categoria).draw(false);
                             filaSeleccionada = null;
                             $("#FormModal").modal("hide");
-                            swal("Usuario modificado!", "El usuario " + Usuario.Nombres + " " + Usuario.Apellidos + " ha sido modificado correctamente", "success");
+                            swal("Categoria modificada!", "La categoria " + Categoria.Descripcion + " ha sido modificada correctamente", "success");
                         }
                         else
                         {
