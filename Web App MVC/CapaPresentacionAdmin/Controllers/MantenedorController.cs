@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using CapaEntidad;
 using CapaNegocio;
@@ -159,7 +160,7 @@ namespace CapaPresentacionAdmin.Controllers
             {
                 if(archivoImagen != null)
                 {
-                    string path = ConfigurationManager.AppSettings["ServidorFotos"];
+                    string path = ConfigurationManager.AppSettings["Fotos"];
                     string extension = Path.GetExtension(archivoImagen.FileName);
                     string imageName = string.Concat(objProducto.IdProducto.ToString(), extension);
 
@@ -192,16 +193,37 @@ namespace CapaPresentacionAdmin.Controllers
         }
 
         [HttpPost]
-        public JsonResult EliminarMarca(int id)
+        public JsonResult ImagenProducto(int id)
+        {
+            bool conversion;
+
+            Producto objProducto = new CN_Producto().Listar().Where(p => p.IdProducto == id).FirstOrDefault();
+
+            string textoBase64 = CN_Helper.ConvertirBase64(Path.Combine(objProducto.RutaImagen, objProducto.NombreImagen), out conversion);
+
+            return Json( new { 
+              conversion = conversion,
+              textoBase64 = textoBase64,
+              extension = Path.GetExtension(objProducto.NombreImagen)
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult EliminarProducto(int id)
         {
             bool respuesta = false;
             string mensaje = string.Empty;
 
-            respuesta = new CN_Marca().EliminarMarca(id, out mensaje);
+            respuesta = new CN_Producto().EliminarProducto(id, out mensaje);
 
-            return Json(new { resultado = respuesta, mensaje = mensaje }, JsonRequestBehavior.AllowGet);
+            return Json (new { 
+                resultado = respuesta, 
+                mensaje = mensaje 
+            }, JsonRequestBehavior.AllowGet);
 
         }
+
         #endregion
 
     }
