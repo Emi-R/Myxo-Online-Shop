@@ -16,7 +16,8 @@ namespace CapaPresentacionAdmin
                         "~/Scripts/DataTables/jquery.dataTables.js",
                         "~/Scripts/DataTables/dataTables.responsive.js",
                         "~/Scripts/loadingoverlay/loadingoverlay.min.js",
-                        "~/Scripts/sweetalert.min.js"
+                        "~/Scripts/sweetalert.min.js",
+                        "~/Scripts/jquery.validate.js"
                         ));
 
             //bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
