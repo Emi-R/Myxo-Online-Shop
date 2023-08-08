@@ -45,7 +45,7 @@ namespace CapaPresentacionAdmin.Controllers
                 resultado = new CN_Usuarios().EditarUsuario(user, out mensaje);
             }
 
-            return Json (new { resultado = resultado, mensaje = mensaje}, JsonRequestBehavior.AllowGet);
+            return Json(new { resultado = resultado, mensaje = mensaje }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -58,6 +58,14 @@ namespace CapaPresentacionAdmin.Controllers
 
             return Json(new { resultado = respuesta, mensaje = mensaje }, JsonRequestBehavior.AllowGet);
 
+        }
+
+        [HttpGet]
+        public JsonResult VistaDashboard()
+        {
+            Dashboard dashboard = new CN_Reporte().VerDashboard();
+
+            return Json(new { resultado = dashboard}, JsonRequestBehavior.AllowGet);
         }
 
     }

@@ -195,7 +195,8 @@
             },
             function () {
 
-                jQuery.ajax({
+                jQuery.ajax
+                    ({
                     url: '@Url.Action("EliminarUsuario","Home")',
                     type: "POST",
                     data: JSON.stringify({ id: data.IdUsuario }),

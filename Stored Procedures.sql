@@ -306,3 +306,14 @@ Begin
 		Set @Mensaje = 'El producto se encuenta relacionado a una venta'
 End
 Go
+
+Create Proc sp_ReporteDashboard
+as
+Begin
+
+Select
+(Select COUNT(*) from CLIENTE) [TotalCliente],
+(Select ISNULL(sum(cantidad),0) From DETALLE_VENTA) [TotalVenta],
+(Select COUNT(*) From PRODUCTO) [TotalProducto]
+
+End
