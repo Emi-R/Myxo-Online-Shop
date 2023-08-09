@@ -62,7 +62,7 @@
         Historial de Ventas
     </div>
     <div class="card-body">
-        <form>
+        <form action="@Url.Action("ExportarVenta", "Home")" method="post">
             <div class="row align-items-end">
                 <div class="col-sm-2">
                     <div class="mb-2">
@@ -124,33 +124,59 @@
 
     <script>
 
+        var tabledata;
+
+        $(document).ready(function () {
+
+        $("#txtfechainicio").datepicker({ dateFormat: 'dd/mm/yy' }).datepicker('setDate',new Date())
+        $("#txtfechafin").datepicker({ dateFormat: 'dd/mm/yy' }).datepicker('setDate', new Date())
+
         jQuery.ajax
-                    ({
-                    url: '@Url.Action("VistaDashboard","Home")',
-                    type: "GET",
-                    dataType: "json",
-                    contentType: "application/json, charset: utf 8",
-                    success: function (data) {
+        ({
+            url: '@Url.Action("VistaDashboard","Home")',
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json, charset: utf 8",
+            success: function (data) {
 
-                        var dashboard = data.resultado;
+            var dashboard = data.resultado;
 
-                        $("#totalcliente").text(dashboard.totalCliente)
-                        $("#totalventa").text(dashboard.totalVenta)
-                        $("#totalproducto").text(dashboard.totalProducto)
-                      
-                    },
-                });
+            $("#totalcliente").text(dashboard.totalCliente)
+            $("#totalventa").text(dashboard.totalVenta)
+            $("#totalproducto").text(dashboard.totalProducto)
 
+            },
+        });
 
+        var Url = '@Url.Action("ListaReporte", "Home")' +
+        "?fechainicio=" + $("#txtfechainicio").val()+
+        "&fechafin=" + $("#txtfechafin").val()+
+        "&idtransaccion=" + $("#txtidtransaccion").val()
 
+            tabledata = $("#tabla").DataTable({
+            responsive: true,
+            ordering: false,
 
+            "ajax": {
+                url: Url,
+                type: "GET",
+                dataType: "json" },
+            "columns": [
+                { "data": "FechaVenta" },
+                { "data": "Cliente" },
+                { "data": "Producto" },
+                { "data": "Precio" },
+                { "data": "Cantidad" },
+                { "data": "Total" },
+                { "data": "IdTransaccion" }
+                
+            ],
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.5/i18n/es-ES.json",
+            }
+            });
 
-
-
-
-
-
-
+        })
 
     </script>
     }

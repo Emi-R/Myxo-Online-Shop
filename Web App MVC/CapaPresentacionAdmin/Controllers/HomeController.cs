@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using CapaEntidad;
 using CapaNegocio;
+using ClosedXML.Excel;
 
 namespace CapaPresentacionAdmin.Controllers
 {
@@ -61,6 +64,16 @@ namespace CapaPresentacionAdmin.Controllers
         }
 
         [HttpGet]
+        public JsonResult ListaReporte(string fechainicio, string fechafin, string idtransaccion)
+        {
+            List<Reporte> oLista = new List<Reporte>();
+
+            oLista = new CN_Reporte().Ventas(fechainicio, fechafin, idtransaccion);
+
+            return Json(new { data = oLista }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
         public JsonResult VistaDashboard()
         {
             Dashboard dashboard = new CN_Reporte().VerDashboard();
@@ -68,5 +81,50 @@ namespace CapaPresentacionAdmin.Controllers
             return Json(new { resultado = dashboard}, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public FileResult ExportarVenta(string fechainicio, string fechafin, string idtransaccion)
+        {
+            List<Reporte> reportes = new List<Reporte>();
+            reportes = new CN_Reporte().Ventas(fechainicio,fechafin, idtransaccion);
+
+            DataTable dt = new DataTable();
+
+            dt.Locale = new System.Globalization.CultureInfo("es-AR");
+
+            dt.Columns.Add("Fecha Venta", typeof(string));
+            dt.Columns.Add("Cliente", typeof(string));
+            dt.Columns.Add("Producto", typeof(string));
+            dt.Columns.Add("Precio", typeof(decimal));
+            dt.Columns.Add("Cantidad", typeof(int));
+            dt.Columns.Add("Total", typeof(decimal));
+            dt.Columns.Add("IDTransaccion", typeof(string));
+
+            foreach (Reporte reporte in reportes)
+            {
+                dt.Rows.Add(new object[]
+                {
+                    reporte.FechaVenta,
+                    reporte.Cliente,
+                    reporte.Producto,
+                    reporte.Precio,
+                    reporte.Cantidad,
+                    reporte.Total,
+                    reporte.IdTransaccion
+                });
+            }
+
+            dt.TableName = "Datos";
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt);
+
+                using(MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ReporteVenta" + DateTime.Now.ToString() + ".xlsx");
+                }
+            }
+        }
     }
 }
