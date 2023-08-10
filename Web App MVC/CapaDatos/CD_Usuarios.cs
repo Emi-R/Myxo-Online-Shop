@@ -180,5 +180,71 @@ namespace CapaDatos
             return resultado;
         }
 
+        // Changes user password
+        public bool CambiarClave(int idUsuario,string nuevaClave, out string Mensaje)
+        {
+            bool resultado = false;
+            Mensaje = string.Empty;
+
+            try
+            {
+                using (oconexion)
+                {
+                    SqlCommand cmd = new SqlCommand("Update usuario set clave = @nuevaclave, reestablecer = 0 where idusuario = @id", oconexion);
+                    cmd.Parameters.AddWithValue("@id", idUsuario);
+                    cmd.Parameters.AddWithValue("@nuevaClave", nuevaClave);
+                    cmd.CommandType = CommandType.Text;
+
+                    oconexion.Open();
+
+                    resultado = cmd.ExecuteNonQuery() > 0 ? true : false;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado = false;
+                Mensaje = ex.Message;
+            }
+            finally
+            {
+                oconexion.Close();
+            }
+
+            return resultado;
+        }
+
+        // Resets user password
+        public bool ReestablecerClave(int idUsuario, string clave, out string Mensaje)
+        {
+            bool resultado = false;
+            Mensaje = string.Empty;
+
+            try
+            {
+                using (oconexion)
+                {
+                    SqlCommand cmd = new SqlCommand("Update usuario set clave = @clave, reestablecer = 1 where idusuario = @id", oconexion);
+                    cmd.Parameters.AddWithValue("@id", idUsuario);
+                    cmd.Parameters.AddWithValue("@clave", clave);
+                    cmd.CommandType = CommandType.Text;
+
+                    oconexion.Open();
+
+                    resultado = cmd.ExecuteNonQuery() > 0 ? true : false;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado = false;
+                Mensaje = ex.Message;
+            }
+            finally
+            {
+                oconexion.Close();
+            }
+
+            return resultado;
+        }
+
     }
 }

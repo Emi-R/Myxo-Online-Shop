@@ -317,3 +317,26 @@ Select
 (Select COUNT(*) From PRODUCTO) [TotalProducto]
 
 End
+Go
+
+Create Proc sp_ReporteVentas(
+	@fechainicio varchar(10),
+	@fechafin varchar(10),
+	@idtransaccion varchar(50)
+)
+as
+Begin
+
+	Set dateformat dmy;
+
+	Select CONVERT (char(10), v.FechaVenta, 103) [FechaVenta], Concat(c.Nombres,' ', c.Apellidos)[Cliente],
+			p.Nombre[Producto], p.Precio, dv.Cantidad, dv.Total, v.IdTransaccion
+	from DETALLE_VENTA dv
+	inner join PRODUCTO p on p.IdProducto = dv.IdProducto
+	inner join VENTA v on v.IdVenta = dv.IdVenta
+	inner join CLIENTE c on v.IdCliente = c.IdCliente
+	Where convert(date, v.FechaVenta) Between @fechainicio and @fechafin
+	And v.IdTransaccion = iif(@idtransaccion = '', v.IdTransaccion, @idtransaccion)
+
+End
+Go
