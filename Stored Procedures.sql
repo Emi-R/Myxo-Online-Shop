@@ -307,6 +307,40 @@ Begin
 End
 Go
 
+--------------------------------------------
+------------------ CLIENTS -----------------
+--------------------------------------------
+
+-- Registers new client
+
+Create Proc sp_RegistrarCliente(
+	@Nombres varchar(100),
+	@Apellidos varchar(100),
+	@Correo varchar(100),
+	@Clave varchar(100),
+	@Mensaje varchar (500) output,
+	@Resultado int output
+)
+As
+Begin
+	Set @Resultado = 0
+
+	If Not Exists (Select * From CLIENTE Where Correo = @Correo)
+	Begin
+		Insert Into CLIENTE(Nombres,Apellidos,Correo,Clave,Reestablecer) Values
+		(@Nombres, @Apellidos, @Correo, @Clave, 0)
+		Set @Resultado = SCOPE_IDENTITY()
+	end
+	else
+		Set @Mensaje = 'Ya existe un usuario registrado con ese correo'
+End
+Go
+
+--------------------------------------------
+------------------ REPORTS -----------------
+--------------------------------------------
+
+
 Create Proc sp_ReporteDashboard
 as
 Begin
