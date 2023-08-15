@@ -179,7 +179,54 @@ namespace CapaDatos
             }
 
             return resultado;
+        }
 
+        // Returns a list of brands for each category
+        public List<Marca> ListarMarcaporCategoria(int idcategoria)
+        {
+            List<Marca> lista = new List<Marca>();
+
+            try
+            {
+                using (oconexion)
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.AppendLine("Select distinct m.IdMarca, m.Descripcion From PRODUCTO p");
+                    sb.AppendLine("Inner Join CATEGORIA c on c.IdCategoria = p.IdCategoria");
+                    sb.AppendLine("Inner Join MARCA m on m.IdMarca = p.IdMarca and m.Activo = 1");
+                    sb.AppendLine("Where c.IdCategoria = iif(@idcategoria = 0, c.IdCategoria, @idcategoria)");
+
+                    SqlCommand cmd = new SqlCommand(sb.ToString(), oconexion);
+                    cmd.Parameters.AddWithValue("@idcategoria", idcategoria);
+                    cmd.CommandType = CommandType.Text;
+
+                    oconexion.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(
+                                new Marca()
+                                {
+                                    IdMarca = Convert.ToInt32(dr["IdMarca"]),
+                                    Descripcion = dr["Descripcion"].ToString(),
+                                });
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                lista = new List<Marca>();
+            }
+            finally
+            {
+                oconexion.Close();
+            }
+
+            return lista;
         }
     }
 }
