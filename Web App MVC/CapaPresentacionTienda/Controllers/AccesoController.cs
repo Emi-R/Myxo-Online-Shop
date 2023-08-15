@@ -66,7 +66,7 @@ namespace CapaPresentacionTienda.Controllers
         [HttpPost]
         public ActionResult Index(string correo, string clave)
         {
-            Cliente cliente = new Cliente();
+            Cliente cliente = null;
 
             cliente = new CN_Cliente().Listar().Where(item => item.Correo == correo && item.Clave == CN_Helper.ConvertirSHA256(clave)).FirstOrDefault();
             if (cliente == null)
@@ -102,7 +102,7 @@ namespace CapaPresentacionTienda.Controllers
 
             if (cliente == null)
             {
-                ViewBag.Error = "No existe un clientee registrado a ese correo";
+                ViewBag.Error = "No existe un cliente registrado a ese correo";
                 return View();
             }
 

@@ -41,7 +41,7 @@ namespace CapaNegocio
                 // Using Helper to generate the random password and encrypt it
                 client.Clave = CN_Helper.ConvertirSHA256(client.Clave);
 
-               return objCapaDato.RegistrarCliente(client, out Mensaje);
+                return objCapaDato.RegistrarCliente(client, out Mensaje);
 
             }
             else
@@ -50,44 +50,44 @@ namespace CapaNegocio
             }
         }
 
-            public bool CambiarClave(int idCliente, string nuevaClave, out string Mensaje)
+        public bool CambiarClave(int idCliente, string nuevaClave, out string Mensaje)
+        {
+            return objCapaDato.CambiarClave(idCliente, nuevaClave, out Mensaje);
+        }
+
+
+        public bool ReestablecerClave(int idCliente, string correo, out string Mensaje)
+        {
+            Mensaje = string.Empty;
+
+            // Using Helper to generate the random password and encrypt it
+            string nuevaClave = CN_Helper.GenerarClave();
+            bool resultado = objCapaDato.ReestablecerClave(idCliente, CN_Helper.ConvertirSHA256(nuevaClave), out Mensaje);
+
+            if (resultado)
             {
-                return objCapaDato.CambiarClave(idCliente, nuevaClave, out Mensaje);
-            }
+                string asunto = "Contraseña reestablecida";
+                string mensajeCorreo = "<h3>Su contraseña ha sido reestablecida</h3> </br> <p>Su nueva contraseña para acceder es: !clave!</p>";
+                mensajeCorreo = mensajeCorreo.Replace("!clave!", nuevaClave);
 
+                bool respuesta = CN_Helper.EnviarCorreo(correo, asunto, mensajeCorreo);
 
-            public bool ReestablecerClave(int idCliente, string correo, out string Mensaje)
-            {
-                Mensaje = string.Empty;
-
-                // Using Helper to generate the random password and encrypt it
-                string nuevaClave = CN_Helper.GenerarClave();
-                bool resultado = objCapaDato.ReestablecerClave(idCliente, CN_Helper.ConvertirSHA256(nuevaClave), out Mensaje);
-
-                if (resultado)
+                if (respuesta)
                 {
-                    string asunto = "Contraseña reestablecida";
-                    string mensajeCorreo = "<h3>Su contraseña ha sido reestablecida</h3> </br> <p>Su nueva contraseña para acceder es: !clave!</p>";
-                    mensajeCorreo = mensajeCorreo.Replace("!clave!", nuevaClave);
-
-                    bool respuesta = CN_Helper.EnviarCorreo(correo, asunto, mensajeCorreo);
-
-                    if (respuesta)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        Mensaje = "No se pudo enviar el correo";
-                        return false;
-                    }
+                    return true;
                 }
                 else
                 {
-                    Mensaje = "No se pudo reestablecer la contraseña";
+                    Mensaje = "No se pudo enviar el correo";
                     return false;
                 }
+            }
+            else
+            {
+                Mensaje = "No se pudo reestablecer la contraseña";
+                return false;
             }
         }
     }
 }
+
