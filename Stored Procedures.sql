@@ -336,6 +336,79 @@ Begin
 End
 Go
 
+
+--------------------------------------------
+------------------- CART ------------------
+--------------------------------------------
+
+Create Proc sp_ExisteCarrito(
+	 @IdCliente int,
+	 @IdProducto int,
+	 @Resultado bit output
+)
+As
+Begin
+	If Exists(Select * From CARRITO Where IdCliente = @IdCliente And IdProducto = @IdProducto)
+		Set @Resultado = 1
+	Else
+		Set @Resultado = 0
+End
+Go
+
+Create Proc sp_OperacionCarrito(
+	@IdCliente int,
+	@IdProducto int,
+	@Sumar bit,
+	@Mensaje varchar(500) output,
+	@Resultado bit output
+)
+AS
+Begin
+	Set @Resultado = 1
+	set @Mensaje = ''
+
+	Declare @existecarrito bit = iif(exists(Select * From CARRITO Where IdCliente = @IdCliente and IdProducto = @IdProducto),1,0)
+	Declare @stockproducto int = (Select Stock From PRODUCTO Where IdProducto = @IdProducto)
+
+	Begin Try 
+
+		Begin Transaction Operacion
+
+		if(@Sumar = 1)
+		Begin
+
+			if(@stockproducto > 0)
+			Begin 
+
+				if(@existecarrito = 1)
+					Update CARRITO Set Cantidad = Cantidad + 1 Where IdCliente = @IdCliente And IdProducto = @IdProducto
+				Else 
+					Insert into Carrito(IdCliente, IdProducto, Cantidad) Values (@IdCliente, @IdProducto, 1)
+				
+					Update PRODUCTO Set Stock = Stock - 1 Where IdProducto = @IdProducto
+				End
+			Else 
+				Begin 
+					Set @Resultado = 0
+					Set @Mensaje = 'El producto no cuenta con stock disponible por el momento'
+				End
+			End
+		Else
+		Begin 
+			Update CARRITO Set Cantidad = Cantidad - 1 Where IdCliente = @IdCliente And IdProducto = @IdProducto
+			Update PRODUCTO Set Stock = Stock + 1 Where IdProducto = @IdProducto
+		End 
+
+		Commit Transaction Operacion
+	End Try 
+	Begin Catch 
+		Set @Resultado = 0
+		Set @Mensaje = ERROR_MESSAGE()
+		Rollback Transaction Operacion
+	End Catch
+
+End
+Go
 --------------------------------------------
 ------------------ REPORTS -----------------
 --------------------------------------------
@@ -374,3 +447,12 @@ Begin
 
 End
 Go
+
+Declare @idcategoria int = 0
+
+Select distinct m.IdMarca, m.Descripcion From PRODUCTO p
+Inner Join CATEGORIA c on c.IdCategoria = p.IdCategoria
+Inner Join MARCA m on m.IdMarca = p.IdMarca and m.Activo = 1
+Where c.IdCategoria = iif(@idcategoria = 0, c.IdCategoria, @idcategoria)
+
+

@@ -17,6 +17,22 @@ namespace CapaPresentacionTienda.Controllers
             return View();
         }
 
+        public ActionResult DetalleProducto(int idproducto = 0)
+        {
+            Producto producto = new Producto();
+            bool conversion;
+
+            producto = new CN_Producto().Listar().Where(p => p.IdProducto == idproducto).FirstOrDefault();
+
+            if (producto != null)
+            {
+                producto.Base64 = CN_Helper.ConvertirBase64(Path.Combine(producto.RutaImagen, producto.NombreImagen), out conversion);
+                producto.Extension = Path.GetExtension(producto.NombreImagen);
+            }
+
+            return View(producto);
+        }
+
         [HttpGet]
         public JsonResult ListaCategorias()
         {
@@ -29,7 +45,7 @@ namespace CapaPresentacionTienda.Controllers
         }
 
         [HttpPost]
-        public JsonResult ListaMarcaporCategoria(int idcategoria)
+        public JsonResult ListarMarcasPorCategoria(int idcategoria)
         {
             List<Marca> lista = new List<Marca>();
             lista = new CN_Marca().ListarMarcaporCategoria(idcategoria);
