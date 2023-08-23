@@ -17,6 +17,11 @@ namespace CapaPresentacionTienda.Controllers
             return View();
         }
 
+        public ActionResult Carrito()
+        {
+            return View();
+        }
+
         public ActionResult DetalleProducto(int idproducto = 0)
         {
             Producto producto = new Producto();
@@ -165,6 +170,27 @@ namespace CapaPresentacionTienda.Controllers
 
             return Json(new { respuesta = respuesta, mensaje = mensaje }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult ObtenerProvincias()
+        {
+            List<Provincia> lista = new List<Provincia>();
+
+            lista = new CN_Ubicacion().ObtenerProvincias();
+
+            return Json(new { lista = lista }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult ObtenerLocalidades(string idprovincia)
+        {
+            List<Localidad> lista = new List<Localidad>();
+
+            lista = new CN_Ubicacion().ObtenerLocalidades(idprovincia);
+
+            return Json(new { lista = lista }, JsonRequestBehavior.AllowGet);
+        }
+
     }
 
 }
