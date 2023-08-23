@@ -410,6 +410,47 @@ Begin
 End
 Go
 
+Create Proc sp_EliminarCarrito(
+	 @IdCliente int,
+	 @IdProducto int,
+	 @Resultado bit output
+)
+As
+Begin
+
+	Set @Resultado = 1
+	Declare @cantidadproducto int = (Select Cantidad From CARRITO Where IdCliente = @IdCliente and IdProducto = @IdProducto)
+
+	Begin Try 
+		Begin Transaction Operacion 
+
+		Update PRODUCTO Set Stock = Stock + @cantidadproducto Where IdProducto = @IdProducto
+		Delete Top(1) from CARRITO Where IdCliente = @IdCliente and IdProducto = @IdProducto
+
+		Commit Transaction Operacion 
+	End Try 
+	Begin Catch 
+		Set @Resultado = 0
+		Rollback Transaction Operacion
+	End Catch
+End
+Go
+
+Create Function fn_obtenerCarritoCliente(
+	@idcliente int
+)
+returns table 
+as 
+return(
+	Select p.IdProducto, m.Descripcion[DesMarca], p.Nombre, p.Precio, c.Cantidad, p.RutaImagen, p.NombreImagen
+	From CARRITO c 
+	Inner Join PRODUCTO p on p.IdProducto = c.IdProducto
+	Inner Join MARCA m on p.IdMarca = m .IdMarca
+	Where c.IdCliente = @idcliente
+)
+Go
+
+
 --------------------------------------------
 ------------------ REPORTS -----------------
 --------------------------------------------
@@ -449,11 +490,6 @@ Begin
 End
 Go
 
-Declare @idcategoria int = 0
 
-Select distinct m.IdMarca, m.Descripcion From PRODUCTO p
-Inner Join CATEGORIA c on c.IdCategoria = p.IdCategoria
-Inner Join MARCA m on m.IdMarca = p.IdMarca and m.Activo = 1
-Where c.IdCategoria = iif(@idcategoria = 0, c.IdCategoria, @idcategoria)
 
 

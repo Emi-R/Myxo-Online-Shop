@@ -115,6 +115,56 @@ namespace CapaPresentacionTienda.Controllers
             return Json(new { cantidad = cantidad }, JsonRequestBehavior.AllowGet);
 
         }
+
+        [HttpPost]
+        public JsonResult ListarProductosCarrito()
+        {
+            List<Carrito> lista = new List<Carrito>();
+            bool conversion;
+            int idcliente = ((Cliente)Session["Cliente"]).IdCliente;
+
+            lista = new CN_Carrito().ListarProducto(idcliente).Select(oc => new Carrito()
+            {
+                producto = new Producto()
+                {
+                    IdProducto = oc.producto.IdProducto,
+                    Nombre = oc.producto.Nombre,
+                    oMarca = oc.producto.oMarca,
+                    Precio = oc.producto.Precio,
+                    RutaImagen = oc.producto.RutaImagen,
+                    Base64 = CN_Helper.ConvertirBase64(Path.Combine(oc.producto.RutaImagen, oc.producto.NombreImagen), out conversion),
+                    Extension = Path.GetExtension(oc.producto.NombreImagen)
+
+                },
+                Cantidad = oc.Cantidad
+            }).ToList();
+
+            return Json(new { data = lista }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult OperacionCarrito(int idproducto, bool sumar)
+        {
+            int idcliente = ((Cliente)Session["Cliente"]).IdCliente;
+            bool respuesta = false;
+            string mensaje = string.Empty;
+
+            respuesta = new CN_Carrito().OperacionCarrito(idcliente, idproducto, true, out mensaje);
+
+            return Json(new { respuesta = respuesta, mensaje = mensaje }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult EliminarCarrito(int idproducto)
+        {
+            int idcliente = ((Cliente)Session["Cliente"]).IdCliente;
+            bool respuesta = false;
+            string mensaje = string.Empty;
+
+            respuesta = new CN_Carrito().EliminarCarrito(idcliente, idproducto);
+
+            return Json(new { respuesta = respuesta, mensaje = mensaje }, JsonRequestBehavior.AllowGet);
+        }
     }
 
 }
