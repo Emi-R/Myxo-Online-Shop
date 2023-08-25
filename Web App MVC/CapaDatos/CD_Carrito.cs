@@ -152,10 +152,9 @@ namespace CapaDatos
                                         Nombre = dr["Nombre"].ToString(),
                                         oMarca = new Marca()
                                         {
-                                            Descripcion = dr["DescMarca"].ToString()
+                                            Descripcion = dr["DesMarca"].ToString()
                                         },
                                         Precio = Convert.ToDecimal(dr["Precio"], new CultureInfo("es-AR")),
-                                        Stock = Convert.ToInt32(dr["Stock"]),
                                         RutaImagen = dr["RutaImagen"].ToString(),
                                         NombreImagen = dr["NombreImagen"].ToString(),
                                     },
