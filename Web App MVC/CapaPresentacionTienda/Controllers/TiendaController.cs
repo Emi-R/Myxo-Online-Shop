@@ -6,6 +6,9 @@ using System.Web.Mvc;
 using CapaEntidad;
 using CapaNegocio;
 using System.IO;
+using System.Threading.Tasks;
+using System.Data;
+using System.Globalization;
 
 namespace CapaPresentacionTienda.Controllers
 {
@@ -191,6 +194,40 @@ namespace CapaPresentacionTienda.Controllers
             return Json(new { lista = lista }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public async Task<JsonResult> ProcesarPago(List<Carrito> oListaCarrito, Venta oVenta)
+        {
+            decimal total = 0;
+
+            DataTable detalle_venta = new DataTable();
+            detalle_venta.Locale = new CultureInfo("es-AR");
+            detalle_venta.Columns.Add("IdProducto", typeof(string));
+            detalle_venta.Columns.Add("Cantidad", typeof(int));
+            detalle_venta.Columns.Add("Total", typeof(decimal));
+
+            foreach(Carrito oCarrito in oListaCarrito)
+            {
+                decimal subtotal = Convert.ToDecimal(oCarrito.Cantidad.ToString()) * oCarrito.producto.Precio;
+
+                total += subtotal;
+
+                detalle_venta.Rows.Add(new object[]{
+
+                    oCarrito.producto.IdProducto,
+                    oCarrito.Cantidad,
+                    subtotal
+
+                });
+            }
+
+            oVenta.MontoTotal = total;
+            oVenta.IdCliente = ((Cliente)Session["Cliente"]).IdCliente;
+
+            TempData["Venta"] = oVenta;
+            TempData["DetalleVenta"] = detalle_venta;
+
+            return Json( new {Status = true, Link = "/Tienda/Pagoefectuado?idTransaccion=code0001&status=true"}, JsonRequestBehavior.AllowGet);
+        }
     }
 
 }
