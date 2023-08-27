@@ -156,7 +156,7 @@
 
                     })
 
-                   
+
 
                 },
                 error: function (error) {
@@ -166,7 +166,7 @@
                     $("#productos-carrito").LoadingOverlay("show");
                 }
             })
-            
+
             ListarProvincias();
 
         })
@@ -323,8 +323,77 @@
                         }
                     }
                 })
-            
+
         })
+
+        function RealizarPago() {
+
+            if (parseInt($("#cantidadcarrito").text()) == 0) {
+                swal("Ups!", "No hay productos en el carrito", "warning")
+                return
+            }
+
+            if ($("#cbolocalidad").val() == null || $("#txtnombrecontacto").val() == "" || $("#txtdireccion").val() == "" || $("#txttelefono").val() == "") {
+
+                swal("Ups!", "Debes completar todos los campos para el envio", "warning")
+                return
+            }
+
+            var venta = {
+                TotalProducto: $("input.input-cantidad").length,
+                MontoTotal: 0,
+                Contacto: $("#txtnombrecontacto").val(),
+                IdLocalidad: $("#cbolocalidad").val(),
+                Telefono: $("#txttelefono").val(),
+                Direccion: $("#txtdireccion").val()
+            }
+
+            var lista_carrito = [];
+
+            $("input.input-cantidad").each(function (i) {
+
+                var producto = $(this).data("producto");
+                var cantidad = parseFloat($(this).val())
+
+                lista_carrito.push({
+                    producto: producto,
+                    Cantidad: cantidad
+                })
+            })
+
+            jQuery.ajax({
+                url: "@Url.Action("ProcesarPago", "Tienda")",
+                type: "POST",
+                data: JSON.stringify({ oListaCarrito: lista_carrito, oVenta: venta }),
+                datatype: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $.LoadingOverlay("hide")
+
+                    if (data.Status) {
+
+                        window.location.href = data.Link
+
+                    }
+                    else
+                    {
+                        swal("", "Volve a intentar en unos minutos", "warning")
+                    }
+                },
+                beforeSend: function ()
+                {
+                    $.LoadingOverlay("show")
+                },
+                error: function (error)
+                {
+                    $.LoadingOverlay("hide")
+                }
+            })
+        
+
+
+        }
 
     </script>
 }
