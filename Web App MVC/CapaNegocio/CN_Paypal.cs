@@ -14,8 +14,8 @@ namespace CapaNegocio
     public class CN_Paypal
     {
         private static string urlpaypal = ConfigurationManager.AppSettings["UrlPaypal"];
-        private static string clientid = ConfigurationManager.AppSettings["ClientID"];
-        private static string secretkey = ConfigurationManager.AppSettings["SecretKey"];
+        private static string clientId = ConfigurationManager.AppSettings["ClientID"];
+        private static string secret = ConfigurationManager.AppSettings["SecretKey"];
 
         public async Task<Response_Paypal<Response_Checkout>> CrearSolicitud(Checkout_Order orden)
         {
@@ -25,7 +25,7 @@ namespace CapaNegocio
             {
                 client.BaseAddress = new Uri(urlpaypal);
 
-                var authToken = Encoding.ASCII.GetBytes($"{clientid}:{secretkey}");
+                var authToken = Encoding.ASCII.GetBytes($"{clientId}:{secret}");
                 client.DefaultRequestHeaders.Authorization= new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
 
                 var json = JsonConvert.SerializeObject(orden);
@@ -57,7 +57,7 @@ namespace CapaNegocio
             {
                 client.BaseAddress = new Uri(urlpaypal);
 
-                var authToken = Encoding.ASCII.GetBytes($"{clientid}:{secretkey}");
+                var authToken = Encoding.ASCII.GetBytes($"{clientId}:{secret}");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
 
                 var data = new StringContent("{}", Encoding.UTF8, "application/json");
@@ -78,6 +78,5 @@ namespace CapaNegocio
                 return response_paypal;
             }
         }
-
     }
 }
