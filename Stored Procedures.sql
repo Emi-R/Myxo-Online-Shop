@@ -442,7 +442,14 @@ Create Function fn_obtenerCarritoCliente(
 returns table 
 as 
 return(
-	Select p.IdProducto, m.Descripcion[DesMarca], p.Nombre, p.Precio, c.Cantidad, p.RutaImagen, p.NombreImagen
+	Select p.IdProducto,
+	m.Descripcion[DesMarca],
+	p.Nombre,
+	p.Precio,
+	p.Stock,
+	c.Cantidad,
+	p.RutaImagen,
+	p.NombreImagen
 	From CARRITO c 
 	Inner Join PRODUCTO p on p.IdProducto = c.IdProducto
 	Inner Join MARCA m on p.IdMarca = m .IdMarca
@@ -488,5 +495,81 @@ Begin
 	And v.IdTransaccion = iif(@idtransaccion = '', v.IdTransaccion, @idtransaccion)
 
 End
+Go
+
+Create Type [dbo].[EDetalle_Venta] as Table(
+	[IdProducto] int Null,
+	[Cantidad] int Null,
+	[Total] decimal(18, 2) Null
+)
+Go
+
+
+--------------------------------------------
+------------------- SALES ------------------
+--------------------------------------------
+
+Create Proc usp_RegistrarVenta(
+	@IdCliente int,
+	@TotalProducto int,
+	@MontoTotal decimal(18,2),
+	@Contacto varchar(100),
+	@IdLocalidad varchar(4),
+	@Telefono varchar(10),
+	@Direccion varchar(100),
+	@IdTransaccion varchar(50),
+	@DetalleVenta [EDetalle_Venta] READONLY,
+	@Resultado bit output,
+	@Mensaje varchar(500) output
+)
+as
+Begin 
+
+	Begin Try
+
+		Declare @idventa int = 0
+		Set @Resultado = 1
+		Set @Mensaje = ''
+
+		Begin Transaction registro 
+
+		Insert Into Venta(IdCliente,TotalProducto,MontoTotal,Contacto,IdLocalidad,Telefono,Direccion,IdTransaccion)
+		Values(@IdCliente, @TotalProducto, @MontoTotal, @Contacto, @IdLocalidad, @Telefono, @Direccion, @IdTransaccion)
+
+		Set @idventa = SCOPE_IDENTITY()
+
+		Insert into DETALLE_VENTA(IdVenta,IdProducto,Cantidad,Total)
+		Select @idventa, IdProducto, Cantidad, Total from @DetalleVenta
+
+		Delete from CARRITO Where IdCliente = @IdCliente
+
+		Commit Transaction registro
+	End Try 
+	Begin Catch 
+		Set @Resultado = 0
+		Set @Mensaje = ERROR_MESSAGE()
+		Rollback Transaction registro
+	End Catch 
+
+End
+Go
+
+Create Function fn_ListarCompra(
+	@idcliente int
+)
+returns table 
+as 
+return(
+		Select p.RutaImagen, 
+		p.NombreImagen,
+		p.Nombre,
+		p.Precio,
+		dv.Cantidad,
+		dv.Total,
+		v.IdTransaccion From DETALLE_VENTA DV 
+		Inner Join PRODUCTO P On P.IdProducto = DV.IdProducto
+		Inner Join VENTA V On V.IdVenta = DV.IdVenta
+		Where V.IdCliente = @idcliente
+)
 Go
 
